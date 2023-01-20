@@ -12,12 +12,22 @@ public class AI : MonoBehaviour
     }
 
     State currentState;
+    NavMeshAgent agent;
     public Transform[] destinationPoints;
+    int destinationIndex = 0;
+    public Transform player;
+    public float visionRange;
 
+    void Awake() 
+    {
+        agent = GetComponent<NavMeshAgent>();
+    }
+    
     // Start is called before the first frame update
     void Start()
     {
-        
+        currentState = State.Patrolling;
+        destinationIndex = Random.Range(0, destinationPoints.Length);
     }
 
     // Update is called once per frame
@@ -39,12 +49,28 @@ public class AI : MonoBehaviour
 
     void Patrol()
     {
+        agent.destination = destinationPoints[destinationIndex].position;
+
+        if(Vector3.Distance(transform.position, destinationPoints[destinationIndex].position) < 2)
+        {
+            destinationIndex = Random.Range(0, destinationPoints.Length);
+        }
+
+        if(Vector3.Distance(transform.position, player.position) < visionRange)
+        {
+            currentState = State.Chasing;
+        }
 
     }
 
     void Chase()
     {
+        agent.destination = player.position;
 
+        if(Vector3.Distance(transform.position, player.position) > visionRange)
+        {
+            currentState = State.Patrolling;
+        }
     }
 
     void OnDrawGizmos() 
